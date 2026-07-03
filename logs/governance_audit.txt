@@ -1,0 +1,41 @@
+BankOps-Lite | Data Governance Audit Report
+Run Timestamp : 2026-07-03 18:41:58
+============================================================
+
+[PHASE 1] Loading raw legacy CSV exports...
+  Raw customers loaded : 510 rows
+  Raw transactions loaded : 5,100 rows
+
+[PHASE 2] Data Profiling (Quality Assessment)...
+  Customers — Null/empty fields : 25
+  Customers — Duplicate rows    : 10
+  Transactions — Null fields    : 205
+  Transactions — Duplicate rows : 100
+
+[PHASE 3] Cleaning Customer Records...
+  [C1] Removed exact duplicate customers     : 10
+  [C2] Rejected customers with invalid age   : 15
+  [C3] Filled missing city with 'Unknown'    : 25
+  [C4] Rejected customers with invalid score : 0
+
+  Customer Governance Result:
+    Input  : 510 rows
+    Output : 485 rows  (95.1% pass rate)
+    Rejected: 25 rows
+
+[PHASE 4] Cleaning Transaction Records...
+  [T1] Removed exact duplicate transactions  : 100
+  [T2] Rejected NULL amount transactions     : 200
+  [T3] Rejected zero/negative amounts        : 0
+  [T4] Rejected malformed date transactions  : 143
+  [T5] Removed orphaned transactions         : 128
+
+  Transaction Governance Result:
+    Input   : 5,100 rows
+    Output  : 4,529 rows  (88.8% pass rate)
+    Rejected: 571 rows
+
+[PHASE 5] Loading clean data into SQLite Data Warehouse (Star Schema)...
+  [OK] Dim_Customer   -> 485 rows inserted
+  [OK] Dim_Date       -> 366 unique dates inserted
+  [OK] Fact_Transactions -> 4,529 rows inserted

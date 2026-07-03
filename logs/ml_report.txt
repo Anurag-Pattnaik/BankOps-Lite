@@ -1,0 +1,43 @@
+BankOps-Lite | ML Fraud Detection Report
+Run Timestamp: 2026-07-03 18:43:00
+============================================================
+
+[1/5] Loading data from SQLite warehouse...
+  Loaded 4,529 transactions from warehouse
+  Fraud rate in dataset: 11.81%
+
+[2/5] Engineering features for ML model...
+  Feature columns : ['amount', 'account_age_days', 'credit_score', 'tx_type_enc', 'acct_type_enc', 'day_enc', 'month', 'is_high_amount']
+  Target column   : fraud_label
+
+[3/5] Splitting dataset (80% train / 20% test)...
+  Training samples : 3,623
+  Testing  samples : 906
+  Fraud in train   : 428 (11.8%)
+  Fraud in test    : 107  (11.8%)
+
+[4/5] Training Random Forest Classifier...
+
+  -- Model Performance on Test Set --
+  Accuracy  : 96.25%  (overall correct predictions)
+  Precision : 100.00%  (of flagged fraud, how many were real)
+  Recall    : 68.22%  (of real fraud, how many did we catch)
+  F1 Score  : 81.11%  (balance of Precision and Recall)
+
+  Confusion Matrix:
+               Predicted: OK  Predicted: Fraud
+  Actual: OK         799              0        
+  Actual: Fraud      34               73       
+
+  -- Feature Importance (what the model found most useful) --
+  tx_type_enc          0.4771  |||||||||||||||||||
+  acct_type_enc        0.2588  ||||||||||
+  amount               0.0692  ||
+  account_age_days     0.0673  ||
+  credit_score         0.0647  ||
+  month                0.0317  |
+  day_enc              0.0261  |
+  is_high_amount       0.0052  
+
+[5/5] Saving predictions back to SQLite Fact_Transactions...
+  Updated 4,529 rows in Fact_Transactions.fraud_predicted

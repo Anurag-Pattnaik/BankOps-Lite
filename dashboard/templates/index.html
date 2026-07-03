@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BankOps-Lite: Retail Banking Data Modernization, Governance & Fraud Intelligence Dashboard. Built with Python, SQLite, and Flask.">
+    <title>BankOps-Lite · Retail Banking Analytics Dashboard</title>
+
+    <!-- Google Fonts: Outfit for UI, Fira Code for technical values -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Chart.js: Free, open-source charting library (equivalent to Tableau/PowerBI in concept) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- Ambient background orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="shell">
+
+        <!-- ── Header ─────────────────────────────────────────────────── -->
+        <header class="header">
+            <div class="header-left">
+                <div class="bank-logo">🏦</div>
+                <div>
+                    <div class="brand-tag">APEX BANK · TECHNOLOGY CONSULTING ENGAGEMENT</div>
+                    <h1 class="brand-title">BankOps<span class="brand-lite">Lite</span></h1>
+                    <p class="brand-sub">Data Modernization, Governance & Fraud Intelligence Platform</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-badge">
+                    <span class="dot pulsing"></span>
+                    <span>Live · Local SQLite Warehouse</span>
+                </div>
+                <div class="header-meta" id="run-timestamp">Loading...</div>
+            </div>
+        </header>
+
+        <!-- ── KPI Summary Strip ───────────────────────────────────────── -->
+        <section class="kpi-strip" id="kpi-strip">
+            <div class="kpi-card">
+                <div class="kpi-icon">📋</div>
+                <div class="kpi-val" id="kpi-raw-tx">–</div>
+                <div class="kpi-label">Raw Records Received</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-val success" id="kpi-clean-tx">–</div>
+                <div class="kpi-label">Clean Records (Governed)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🛡️</div>
+                <div class="kpi-val" id="kpi-tx-pass">–%</div>
+                <div class="kpi-label">Tx Governance Pass Rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">⚠️</div>
+                <div class="kpi-val danger" id="kpi-actual-fraud">–</div>
+                <div class="kpi-label">Actual Fraud (Labelled)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🤖</div>
+                <div class="kpi-val warn" id="kpi-predicted-fraud">–</div>
+                <div class="kpi-label">ML Predicted Fraud</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">📊</div>
+                <div class="kpi-val" id="kpi-fraud-rate">–%</div>
+                <div class="kpi-label">Fraud Rate in Dataset</div>
+            </div>
+        </section>
+
+        <!-- ── Main Charts Grid ────────────────────────────────────────── -->
+        <div class="charts-grid">
+
+            <!-- Chart 1: Monthly Transaction Volume (Bar) -->
+            <div class="chart-card wide">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">📈 Monthly Transaction Volume</h3>
+                        <p class="chart-sub">Total deposits vs. withdrawals over the 12-month period (INR). Useful for identifying seasonal banking trends.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-monthly"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Account Type Distribution (Donut) -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">🥧 Account Type Distribution</h3>
+                        <p class="chart-sub">Proportion of Savings, Current, and Loan accounts across the customer base.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-acct-type"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Credit Score Distribution (Bar) -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">📉 Credit Score Bands (CIBIL)</h3>
+                        <p class="chart-sub">Customer distribution across RBI credit risk tiers. Poor scores indicate high-risk customers.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-credit"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Top Branches (Horizontal Bar) -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">🏢 Top Branches by Volume</h3>
+                        <p class="chart-sub">Total transaction value processed by each branch. Identifies high-load nodes for infrastructure planning.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-branches"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 5: Fraud by Transaction Type (Pie) -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">🔍 ML-Predicted Fraud by Type</h3>
+                        <p class="chart-sub">Breakdown of transactions flagged as fraudulent by the Random Forest model, grouped by transaction category.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-fraud-type"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 6: Governance Summary (Doughnut) -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h3 class="chart-title">🧹 Data Governance: Quality Score</h3>
+                        <p class="chart-sub">Percentage of raw transaction records that passed all governance validation rules and entered the warehouse.</p>
+                    </div>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="chart-governance"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── Pipeline Architecture Reference ────────────────────────── -->
+        <section class="architecture-section">
+            <h3 class="arch-title">⚙️ Data Pipeline Architecture</h3>
+            <div class="arch-flow">
+                <div class="arch-step">
+                    <div class="arch-icon">📤</div>
+                    <div class="arch-name">Legacy Export</div>
+                    <div class="arch-desc">Python generates dirty CSV (Bronze Layer)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step">
+                    <div class="arch-icon">🧹</div>
+                    <div class="arch-name">Governance Engine</div>
+                    <div class="arch-desc">Validates, cleans & rejects (Silver Layer)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step">
+                    <div class="arch-icon">🗄️</div>
+                    <div class="arch-name">Star Schema Warehouse</div>
+                    <div class="arch-desc">SQLite Dim + Fact tables (Gold Layer)</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step">
+                    <div class="arch-icon">🤖</div>
+                    <div class="arch-name">ML Fraud Model</div>
+                    <div class="arch-desc">Random Forest predictions → DB</div>
+                </div>
+                <div class="arch-arrow">→</div>
+                <div class="arch-step">
+                    <div class="arch-icon">📊</div>
+                    <div class="arch-name">BI Dashboard</div>
+                    <div class="arch-desc">Flask API + Chart.js (Executive View)</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>BankOps-Lite · Data Modernization &amp; Fraud Intelligence Platform · Built with Python, SQLite, Flask &amp; Chart.js</p>
+            <p>Simulates an Application &amp; Data Modernization &amp; Migration (ADMM) consulting engagement</p>
+        </footer>
+
+    </div>
+
+    <script src="/static/js/charts.js"></script>
+</body>
+</html>
